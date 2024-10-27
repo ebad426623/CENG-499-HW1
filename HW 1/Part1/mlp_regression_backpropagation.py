@@ -88,4 +88,5 @@ class MLPRegressor:
 
 X, L = pickle.load(open("../datasets/part1_regression_dataset.dat", "rb"))
 mlp = MLPRegressor(learning_rate=0.01, epoch_number=250)
-mlp.train(X, L)
+#mlp.train(X, L)
+print("Hello Word from regression")

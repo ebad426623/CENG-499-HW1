@@ -106,4 +106,4 @@ class MLPClassifier:
 X, L = pickle.load(open("../datasets/part1_classification_dataset.dat", "rb"))
 mlp = MLPClassifier(learning_rate=0.01, epoch_number=120)
 #mlp.train(X, L)
-print("Hello World")
+print("Hello World from classification")
