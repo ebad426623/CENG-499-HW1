@@ -105,5 +105,5 @@ class MLPRegressor:
             print(f"Epoch Number: {iteration_count} - Training Mean SE: {mean_mse:.3f}")
 
 X, L = pickle.load(open("../datasets/part1_regression_dataset.dat", "rb"))
-mlp = MLPRegressor(learning_rate=0.01, epoch_number=1)
+mlp = MLPRegressor(learning_rate=0.01, epoch_number=250)
 mlp.train(X, L)
