@@ -84,7 +84,27 @@ class MLPRegressor:
 
                 #Weight Updates
 
-                print(label)
+                
+
+                # Calculate the output error
+                output_error = 2 * (output_layer_output - label)  # (1, 1)
+
+                # Calculate the hidden layer error
+                hidden_layer_output_flat = hidden_layer_output.flatten()  # (3,)
+                hidden_error = np.dot(output_error, np.transpose(self.GAMMA)) * hidden_layer_output_flat * (1 - hidden_layer_output_flat)
+
+                # Weight updates
+                GAMMA_update = np.dot(np.transpose(hidden_layer_output), output_error)  # update for GAMMA
+                GAMMA_bias_update = output_error  # update for GAMMA_bias
+
+                W_update = np.dot(np.transpose(x), hidden_error)  # update for W
+                W_bias_update = hidden_error  # update for W_bias
+
+
+
+
+
+
                 # After finding update values we are performing the weight updates
                 self.W = self.W - self.learning_rate*W_update
                 self.W_bias = self.W_bias - self.learning_rate*W_bias_update
