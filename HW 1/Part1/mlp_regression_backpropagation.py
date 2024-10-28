@@ -43,7 +43,7 @@ class MLPRegressor:
         data_instances = x.shape[0]
 
         hidden_layer_output = np.zeros((data_instances, 3))
-        output_layer_output = np.zeros((data_instances, 1))
+        output_layer_output = np.zeros(data_instances)
 
         wT = self.W.transpose()
         gT = self.GAMMA.transpose()
@@ -55,7 +55,7 @@ class MLPRegressor:
 
 
         for i in range(data_instances):
-            output_layer_output[i][0] = self.GAMMA_bias[i][0] + np.dot(hidden_layer_output[i], gT[i])
+            output_layer_output[i] = self.GAMMA_bias[i] + np.dot(hidden_layer_output[i], gT[i])
 
 
         return hidden_layer_output, output_layer_output
@@ -84,7 +84,6 @@ class MLPRegressor:
 
                 #Weight Updates
 
-                
 
                 # After finding update values we are performing the weight updates
                 self.W = self.W - self.learning_rate*W_update
@@ -106,5 +105,5 @@ class MLPRegressor:
             print(f"Epoch Number: {iteration_count} - Training Mean SE: {mean_mse:.3f}")
 
 X, L = pickle.load(open("../datasets/part1_regression_dataset.dat", "rb"))
-mlp = MLPRegressor(learning_rate=0.01, epoch_number=250)
+mlp = MLPRegressor(learning_rate=0.01, epoch_number=1)
 mlp.train(X, L)
