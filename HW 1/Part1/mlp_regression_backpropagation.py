@@ -29,6 +29,8 @@ class MLPRegressor:
         # Start with fixed initial weights
         self.W, self.W_bias, self.GAMMA, self.GAMMA_bias = pickle.load(open("../datasets/part1_regression_initial_weights.dat", "rb"))
 
+        
+
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """
@@ -38,9 +40,23 @@ class MLPRegressor:
         Please implement the forward propagation procedure for the given data instances here
         This function should return two numpy arrays of sizes (# of data instances, 3) (hidden layer output), (# of data instances, 1) (output layer output)
         """
-        hidden_layer_output, output_layer_output = None, None
+        data_instances = x.shape[0]
 
-        ...
+        hidden_layer_output = np.zeros((data_instances, 3))
+        output_layer_output = np.zeros((data_instances, 1))
+
+        wT = self.W.transpose()
+        gT = self.GAMMA.transpose()
+
+        for i in range(data_instances):
+            hidden_layer_output[i][0] = sigmoid(self.W_bias[i][0] + np.dot(x[i], wT[0]))
+            hidden_layer_output[i][1] = sigmoid(self.W_bias[i][1] + np.dot(x[i], wT[1]))
+            hidden_layer_output[i][2] = sigmoid(self.W_bias[i][2] + np.dot(x[i], wT[2]))
+
+
+        for i in range(data_instances):
+            output_layer_output[i][0] = self.GAMMA_bias[i][0] + np.dot(hidden_layer_output[i], gT[i])
+
 
         return hidden_layer_output, output_layer_output
 
@@ -54,6 +70,7 @@ class MLPRegressor:
                 label = labels[data_index]
                 hidden_layer_output, output_layer_output = self.forward(x)
 
+                
                 W_update = np.zeros_like(self.W)
                 W_bias_update = np.zeros_like(self.W_bias)
                 GAMMA_update = np.zeros_like(self.GAMMA)
@@ -65,7 +82,9 @@ class MLPRegressor:
                     The amount of weight changes should be stored in "W_update", "W_bias_update", "GAMMA_update", "GAMMA_bias_update" variables.
                 """
 
-                ...
+                #W_update
+
+                
 
                 # After finding update values we are performing the weight updates
                 self.W = self.W - self.learning_rate*W_update
@@ -88,5 +107,4 @@ class MLPRegressor:
 
 X, L = pickle.load(open("../datasets/part1_regression_dataset.dat", "rb"))
 mlp = MLPRegressor(learning_rate=0.01, epoch_number=250)
-#mlp.train(X, L)
-print("Hello Word from regression")
+mlp.train(X, L)
