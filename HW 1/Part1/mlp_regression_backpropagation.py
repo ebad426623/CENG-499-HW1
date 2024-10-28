@@ -43,7 +43,7 @@ class MLPRegressor:
         data_instances = x.shape[0]
 
         hidden_layer_output = np.zeros((data_instances, 3))
-        output_layer_output = np.zeros(data_instances)
+        output_layer_output = np.zeros((data_instances, 1))
 
         wT = self.W.transpose()
         gT = self.GAMMA.transpose()
@@ -55,7 +55,7 @@ class MLPRegressor:
 
 
         for i in range(data_instances):
-            output_layer_output[i] = self.GAMMA_bias[i] + np.dot(hidden_layer_output[i], gT[i])
+            output_layer_output[i][0] = self.GAMMA_bias[i][0] + np.dot(hidden_layer_output[i], gT[i])
 
 
         return hidden_layer_output, output_layer_output
@@ -84,7 +84,7 @@ class MLPRegressor:
 
                 #Weight Updates
 
-
+                print(label)
                 # After finding update values we are performing the weight updates
                 self.W = self.W - self.learning_rate*W_update
                 self.W_bias = self.W_bias - self.learning_rate*W_bias_update
