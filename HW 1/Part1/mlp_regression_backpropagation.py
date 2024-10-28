@@ -82,7 +82,7 @@ class MLPRegressor:
                     The amount of weight changes should be stored in "W_update", "W_bias_update", "GAMMA_update", "GAMMA_bias_update" variables.
                 """
 
-                #W_update
+                #Weight Updates
 
                 
 
