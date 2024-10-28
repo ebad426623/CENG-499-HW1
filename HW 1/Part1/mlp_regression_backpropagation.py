@@ -86,21 +86,16 @@ class MLPRegressor:
 
                 
 
-                # Calculate the output error
-                output_error = 2 * (output_layer_output - label)  # (1, 1)
+                output_error = 2 * (output_layer_output - label) 
 
-                # Calculate the hidden layer error
-                hidden_layer_output_flat = hidden_layer_output.flatten()  # (3,)
+                hidden_layer_output_flat = hidden_layer_output.flatten() 
                 hidden_error = np.dot(output_error, np.transpose(self.GAMMA)) * hidden_layer_output_flat * (1 - hidden_layer_output_flat)
 
-                # Weight updates
-                GAMMA_update = np.dot(np.transpose(hidden_layer_output), output_error)  # update for GAMMA
-                GAMMA_bias_update = output_error  # update for GAMMA_bias
+                GAMMA_update = np.dot(np.transpose(hidden_layer_output), output_error)
+                GAMMA_bias_update = output_error  
 
-                W_update = np.dot(np.transpose(x), hidden_error)  # update for W
-                W_bias_update = hidden_error  # update for W_bias
-
-
+                W_update = np.dot(np.transpose(x), hidden_error)  
+                W_bias_update = hidden_error
 
 
 
