@@ -92,7 +92,7 @@ class MLPClassifier:
 
                 
                 dCE_dV = output_layer_output - label
-                GAMMA_update = np.transpose(dCE_dV) * hidden_layer_output
+                GAMMA_update = np.dot(np.transpose(hidden_layer_output), dCE_dV)
                 GAMMA_bias_update = dCE_dV  
 
                 dV_dH = np.transpose(self.GAMMA)
