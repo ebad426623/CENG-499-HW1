@@ -84,18 +84,18 @@ class MLPRegressor:
 
                 #Derivatives
 
-                dE_dO = 2 * (output_layer_output - label) 
+                dSE_dO = 2 * (output_layer_output - label) 
                 dO_dGAMMA = hidden_layer_output.flatten()
 
-                GAMMA_update = np.transpose(dE_dO*dO_dGAMMA)
-                GAMMA_bias_update = dE_dO 
+                GAMMA_update = np.transpose(dSE_dO*dO_dGAMMA)
+                GAMMA_bias_update = dSE_dO 
 
                 dO_dH = np.transpose(self.GAMMA)
                 dH_dZ = dO_dGAMMA * (1 - dO_dGAMMA)
-                dE_dZ = dE_dO * dO_dH * dH_dZ
+                dSE_dZ = dSE_dO * dO_dH * dH_dZ
 
-                W_update = np.transpose(x) * dE_dZ
-                W_bias_update = dE_dZ
+                W_update = np.transpose(x) * dSE_dZ
+                W_bias_update = dSE_dZ
 
 
                 # After finding update values we are performing the weight updates

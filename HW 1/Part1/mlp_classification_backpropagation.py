@@ -41,11 +41,30 @@ class MLPClassifier:
         Please implement the forward propagation procedure for the given data instances here
         This function should return two numpy arrays of sizes (# of data instances, 3) (hidden layer output)  and (# of data instances, 3) (output layer output)
         """
-        hidden_layer_output, output_layer_output = None, None
 
-        ...
+        data_instances = x.shape[0]
+
+        hidden_layer_output = np.zeros((data_instances, 3))
+        output_layer_output = np.zeros((data_instances, 3))
+
+        wT = self.W.transpose()
+        gT = self.GAMMA.transpose()
+
+        for i in range(data_instances):
+            hidden_layer_output[i][0] = sigmoid(self.W_bias[i][0] + np.dot(x[i], wT[0]))
+            hidden_layer_output[i][1] = sigmoid(self.W_bias[i][1] + np.dot(x[i], wT[1]))
+            hidden_layer_output[i][2] = sigmoid(self.W_bias[i][2] + np.dot(x[i], wT[2]))
+
+
+        for i in range(data_instances):
+            output_layer_output[i][0] = self.GAMMA_bias[i][0] + np.dot(hidden_layer_output[i], gT[0])
+            output_layer_output[i][1] = self.GAMMA_bias[i][1] + np.dot(hidden_layer_output[i], gT[1])
+            output_layer_output[i][2] = self.GAMMA_bias[i][2] + np.dot(hidden_layer_output[i], gT[2])
+            
+        output_layer_output = softmax(output_layer_output)  
 
         return hidden_layer_output, output_layer_output
+
 
     def train(self, data_instances: np.ndarray, labels: np.ndarray):
         # Please only implement the part asked in this function
@@ -58,6 +77,10 @@ class MLPClassifier:
                 label = labels[data_index]
                 hidden_layer_output, output_layer_output = self.forward(x)
 
+
+                
+
+
                 W_update = np.zeros_like(self.W)
                 W_bias_update = np.zeros_like(self.W_bias)
                 GAMMA_update = np.zeros_like(self.GAMMA)
@@ -68,7 +91,7 @@ class MLPClassifier:
                     
                     The amount of weight changes should be stored in "W_update", "W_bias_update", "GAMMA_update", "GAMMA_bias_update" variable.
                 """
-
+                
                 ...
 
                 # After finding update values we are performing the weight updates
@@ -105,5 +128,4 @@ class MLPClassifier:
 
 X, L = pickle.load(open("../datasets/part1_classification_dataset.dat", "rb"))
 mlp = MLPClassifier(learning_rate=0.01, epoch_number=120)
-#mlp.train(X, L)
-print("Hello World from classification")
+mlp.train(X, L)
