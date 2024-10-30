@@ -32,7 +32,6 @@ class MLPClassifier:
         # Start with fixed initial weights
         self.W, self.W_bias, self.GAMMA, self.GAMMA_bias = pickle.load(open("../datasets/part1_classification_initial_weights.dat", "rb"))
 
-
     def forward(self, x: np.ndarray) -> np.ndarray:
         """
         :param x: two-dimensional data numpy array fed to the network, size: (# of data instances, # of features)
@@ -79,8 +78,6 @@ class MLPClassifier:
 
 
                 
-
-
                 W_update = np.zeros_like(self.W)
                 W_bias_update = np.zeros_like(self.W_bias)
                 GAMMA_update = np.zeros_like(self.GAMMA)
@@ -91,8 +88,20 @@ class MLPClassifier:
                     
                     The amount of weight changes should be stored in "W_update", "W_bias_update", "GAMMA_update", "GAMMA_bias_update" variable.
                 """
+
+
                 
-                ...
+                dCE_dV = output_layer_output - label
+                GAMMA_update = np.transpose(dCE_dV) * hidden_layer_output
+                GAMMA_bias_update = dCE_dV  
+
+                dV_dH = np.transpose(self.GAMMA)
+                dH_dZ = hidden_layer_output * (1 - hidden_layer_output)
+                
+                dCE_dZ = np.dot(dCE_dV, dV_dH) * dH_dZ
+                W_update = np.transpose(x) * dCE_dZ
+                W_bias_update = dCE_dZ
+             
 
                 # After finding update values we are performing the weight updates
                 self.W = self.W - self.learning_rate*W_update
