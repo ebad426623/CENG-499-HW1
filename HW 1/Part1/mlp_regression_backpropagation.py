@@ -82,22 +82,20 @@ class MLPRegressor:
                     The amount of weight changes should be stored in "W_update", "W_bias_update", "GAMMA_update", "GAMMA_bias_update" variables.
                 """
 
-                #Weight Updates
+                #Derivatives
 
-                
+                dE_dO = 2 * (output_layer_output - label) 
+                dO_dGAMMA = hidden_layer_output.flatten()
 
-                output_error = 2 * (output_layer_output - label) 
+                GAMMA_update = np.transpose(dE_dO*dO_dGAMMA)
+                GAMMA_bias_update = dE_dO 
 
-                hidden_layer_output_flat = hidden_layer_output.flatten() 
-                hidden_error = np.dot(output_error, np.transpose(self.GAMMA)) * hidden_layer_output_flat * (1 - hidden_layer_output_flat)
+                dO_dH = np.transpose(self.GAMMA)
+                dH_dZ = dO_dGAMMA * (1 - dO_dGAMMA)
+                dE_dZ = dE_dO * dO_dH * dH_dZ
 
-                GAMMA_update = np.dot(np.transpose(hidden_layer_output), output_error)
-                GAMMA_bias_update = output_error  
-
-                W_update = np.dot(np.transpose(x), hidden_error)  
-                W_bias_update = hidden_error
-
-
+                W_update = np.transpose(x) * dE_dZ
+                W_bias_update = dE_dZ
 
 
                 # After finding update values we are performing the weight updates
