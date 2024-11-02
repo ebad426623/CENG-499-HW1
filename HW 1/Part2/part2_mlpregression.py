@@ -11,9 +11,10 @@ def forward_pass(w1, b1, w2, b2, input_data):
     """
     output_layer_output = None
 
+    hidden_layer_input = input_data @ w1 + b1
+    hidden_layer_output = torch.tanh(hidden_layer_input)
 
-    ...
-
+    output_layer_output = hidden_layer_output @ w2 + b2
 
     return output_layer_output
 
@@ -39,18 +40,25 @@ test_label = torch.from_numpy(test_label)
 # You are expected to create and initialize the parameters of the network
 # Please do not forget to specify requires_grad=True for all parameters since they need to be trainable.
 
+input_layer = 2
+hidden_layer = 512
+output_layer = 1
+
 # w1 defines the parameters between the input layer and the hidden layer
 # Here you are expected to initialize w1 via the Normal distribution (mean=0, std=1).
-w1 = ...
+w1 = torch.normal(mean = 0, std = 1, size = (input_layer, hidden_layer), requires_grad = True)
+
 # b1 defines the bias parameters for the hidden layer
 # Here you are expected to initialize b1 via the Normal distribution (mean=0, std=1).
-b1 = ...
+b1 = torch.normal(mean = 0, std = 1, size = (1, hidden_layer), requires_grad = True)
+
 # w2 defines the parameters between the hidden layer and the output layer
 # Here you are expected to initialize w2 via the Normal distribution (mean=0, std=1).
-w2 = ...
+w2 = torch.normal(mean = 0, std = 1, size = (hidden_layer, output_layer), requires_grad = True)
+
 # and finally, b2 defines the bias parameters for the output layer
 # Here you are expected to initialize b2 via the Normal distribution (mean=0, std=1).
-b2 = ...
+b2 = torch.normal(mean = 0, std = 1, size = (1, output_layer), requires_grad = True)
 
 
 # These arrays will store the loss values incurred at every training iteration
