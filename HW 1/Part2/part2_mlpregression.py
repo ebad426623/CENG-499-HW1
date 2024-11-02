@@ -82,7 +82,7 @@ for iteration in range(1, ITERATION+1):
     # Using the forward_pass function, we are performing a forward pass over the network with the training data   
     train_predictions = forward_pass(w1, b1, w2, b2, train_dataset)
     # Here you are expected to calculate the MEAN squared error loss with respect to the network predictions and the training ground truth
-    train_mse_loss = ...
+    train_mse_loss = torch.mean((train_label - train_predictions) ** 2)
     
     train_loss_array.append(train_mse_loss.item())
 
@@ -93,7 +93,7 @@ for iteration in range(1, ITERATION+1):
     with torch.no_grad():
         validation_predictions = forward_pass(w1, b1, w2, b2, validation_dataset)
         # Here you are expected to calculate the average/mean squared error loss for the validation datasets by using the validation dataset ground truth.
-        validation_mse_loss = ...
+        validation_mse_loss = torch.mean((validation_label - validation_predictions) ** 2)
         validation_loss_array.append(validation_mse_loss.item())
     print("Iteration : %d - Train MSE Loss %.4f - Validation MSE Loss : %.2f" % (iteration+1, train_mse_loss.item(), validation_mse_loss.item()))
 
@@ -102,7 +102,7 @@ for iteration in range(1, ITERATION+1):
 with torch.no_grad():
     test_predictions = forward_pass(w1, b1, w2, b2, test_dataset)
     # Here you are expected to calculate the network's MSE on the test dataset...
-    test_loss = ...
+    test_loss = torch.mean((test_label - test_predictions) ** 2)
     print("Test MSE loss : %.4f" % test_loss.item())
 
 # We plot the loss versus iteration graph for both datasets (training and validation)
