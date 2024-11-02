@@ -11,6 +11,8 @@ def forward_pass(w1, b1, w2, b2, input_data):
     The output layer should apply the softmax function to obtain posterior probability distribution. And the function should return this distribution
     Here you are expected to perform all the required operations for a forward pass over the network with the given dataset
     """
+
+
     output_layer_output = None
 
 
@@ -45,18 +47,29 @@ test_label = torch.from_numpy(test_label)
 # You are expected to create and initialize the parameters of the network
 # Please do not forget to specify requires_grad=True for all parameters since they need to be trainable.
 
+
+input_layer = 617
+hidden_layer = 64
+output_layer = 3
+
 # w1 defines the parameters between the input layer and the hidden layer
 # Here you are expected to initialize w1 via the Normal distribution (mean=0, std=1).
-w1 = ...
+w1 = torch.normal(mean = 0, std = 1, size = (input_layer - 1, hidden_layer), requires_grad = True)
+
+
 # b1 defines the bias parameters for the hidden layer
 # Here you are expected to initialize b1 via the Normal distribution (mean=0, std=1).
-b1 = ...
+b1 = torch.normal(mean = 0, std = 1, size = (1, hidden_layer), requires_grad = True)
+
+
 # w2 defines the parameters between the hidden layer and the output layer
 # Here you are expected to initialize w2 via the Normal distribution (mean=0, std=1).
-w2 = ...
+w2 = torch.normal(mean = 0, std = 1, size = (hidden_layer - 1, output_layer), requires_grad = True)
+
+
 # and finally, b2 defines the bias parameters for the output layer
 # Here you are expected to initialize b2 via the Normal distribution (mean=0, std=1).
-b2 = ...
+b2 = torch.normal(mean = 0, std = 1, size = (1, output_layer), requires_grad = True)
 
 
 # you are expected to use the stochastic gradient descent optimizer
@@ -96,7 +109,7 @@ for iteration in range(1, ITERATION+1):
         train_accuracy = ...
 
         validation_predictions = forward_pass(w1, b1, w2, b2, validation_dataset)
-        
+
         # Here you are expected to calculate the average/mean cross entropy loss for the validation dataset by using the validation dataset labels.
         validation_mean_crossentropy_loss = ...
 
@@ -104,7 +117,7 @@ for iteration in range(1, ITERATION+1):
 
         # Similarly, here, you are expected to calculate the accuracy score on the validation dataset
         validation_accuracy = ...
-    
+
     print("Iteration : %d - Train Loss %.4f - Train Accuracy : %.2f - Validation Loss : %.4f Validation Accuracy : %.2f" % (iteration, train_mean_crossentropy_loss.item(), train_accuracy, validation_mean_crossentropy_loss.item(), validation_accuracy))
 
 
@@ -121,8 +134,3 @@ plt.plot(iteration_array, train_loss_array, label="Train Loss")
 plt.plot(iteration_array, validation_loss_array, label="Validation Loss")
 plt.legend()
 plt.show()
-
-
-
-
-
