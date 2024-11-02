@@ -13,11 +13,25 @@ def forward_pass(w1, b1, w2, b2, input_data):
     """
 
 
-    output_layer_output = None
+    data_instances = input_data.shape[0]
+
+    hidden_layer_output = torch.zeros(data_instances, hidden_layer)
+    output_layer_output = torch.zeros(data_instances, output_layer)
+
+    w1T = w1.T
+    w2T = w2.T
+
+    for i in range(data_instances):
+        for j in range(64):
+            hidden_layer_output[i][j] = torch.tanh(b1[0][j] + torch.dot(input_data[i], w1T[j]))
 
 
-    ...
+    for i in range(data_instances):
+        output_layer_output[i][0] = b2[0][0] + torch.dot(hidden_layer_output[i], w2T[0])
+        output_layer_output[i][1] = b2[0][1] + torch.dot(hidden_layer_output[i], w2T[1])
+        output_layer_output[i][2] = b2[0][2] + torch.dot(hidden_layer_output[i], w2T[2])
 
+    output_layer_output = torch.softmax(output_layer_output, dim=1)
 
     return output_layer_output
 
@@ -52,9 +66,10 @@ input_layer = 617
 hidden_layer = 64
 output_layer = 3
 
+
 # w1 defines the parameters between the input layer and the hidden layer
 # Here you are expected to initialize w1 via the Normal distribution (mean=0, std=1).
-w1 = torch.normal(mean = 0, std = 1, size = (input_layer - 1, hidden_layer), requires_grad = True)
+w1 = torch.normal(mean = 0, std = 1, size = (input_layer, hidden_layer), requires_grad = True)
 
 
 # b1 defines the bias parameters for the hidden layer
@@ -64,7 +79,7 @@ b1 = torch.normal(mean = 0, std = 1, size = (1, hidden_layer), requires_grad = T
 
 # w2 defines the parameters between the hidden layer and the output layer
 # Here you are expected to initialize w2 via the Normal distribution (mean=0, std=1).
-w2 = torch.normal(mean = 0, std = 1, size = (hidden_layer - 1, output_layer), requires_grad = True)
+w2 = torch.normal(mean = 0, std = 1, size = (hidden_layer, output_layer), requires_grad = True)
 
 
 # and finally, b2 defines the bias parameters for the output layer
@@ -76,6 +91,8 @@ b2 = torch.normal(mean = 0, std = 1, size = (1, output_layer), requires_grad = T
 # w1, b1, w2 and b2 are the trainable parameters of the neural network
 optimizer = torch.optim.SGD([w1, b1, w2, b2], lr=0.001)
 
+
+
 # These arrays will store the loss values incurred at every training iteration
 iteration_array = []
 train_loss_array = []
@@ -83,7 +100,7 @@ validation_loss_array = []
 
 # We are going to perform the backpropagation algorithm 'ITERATION' times over the training dataset
 # After each pass, we are calculating the average/mean cross entropy loss over the validation dataset along with accuracy scores on both datasets.
-ITERATION = 15000
+ITERATION = 1#15000
 for iteration in range(1, ITERATION+1):
     iteration_array.append(iteration)
 
@@ -91,6 +108,8 @@ for iteration in range(1, ITERATION+1):
     optimizer.zero_grad()
     # Using the forward_pass function, we are performing a forward pass over the network with the training data
     train_predictions = forward_pass(w1, b1, w2, b2, train_dataset)
+
+
     # Here you are expected to calculate the MEAN cross-entropy loss with respect to the network predictions and the training label
     train_mean_crossentropy_loss = ...
 
@@ -121,8 +140,10 @@ for iteration in range(1, ITERATION+1):
     print("Iteration : %d - Train Loss %.4f - Train Accuracy : %.2f - Validation Loss : %.4f Validation Accuracy : %.2f" % (iteration, train_mean_crossentropy_loss.item(), train_accuracy, validation_mean_crossentropy_loss.item(), validation_accuracy))
 
 
+
 # after completing the training, we calculate our network's accuracy score on the test dataset...
 # Again, here we don't need to perform any gradient-related operations, so we are using torch.no_grad() function.
+
 with torch.no_grad():
     test_predictions = forward_pass(w1, b1, w2, b2, test_dataset)
     # Here you are expected to calculate the network accuracy score on the test dataset...

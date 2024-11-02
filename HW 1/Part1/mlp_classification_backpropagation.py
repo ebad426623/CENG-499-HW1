@@ -59,8 +59,8 @@ class MLPClassifier:
             output_layer_output[i][0] = self.GAMMA_bias[i][0] + np.dot(hidden_layer_output[i], gT[0])
             output_layer_output[i][1] = self.GAMMA_bias[i][1] + np.dot(hidden_layer_output[i], gT[1])
             output_layer_output[i][2] = self.GAMMA_bias[i][2] + np.dot(hidden_layer_output[i], gT[2])
-            
-        output_layer_output = softmax(output_layer_output)  
+
+        output_layer_output = softmax(output_layer_output)
 
         return hidden_layer_output, output_layer_output
 
@@ -77,7 +77,7 @@ class MLPClassifier:
                 hidden_layer_output, output_layer_output = self.forward(x)
 
 
-                
+
                 W_update = np.zeros_like(self.W)
                 W_bias_update = np.zeros_like(self.W_bias)
                 GAMMA_update = np.zeros_like(self.GAMMA)
@@ -85,23 +85,23 @@ class MLPClassifier:
                 """
                     Please calculate the weight update rules for W, W_bias and GAMMA and GAMMA_bias matrices here
                     using the "x", "hidden_layer_output", "output_layer_output" and "label" variables defined above
-                    
+
                     The amount of weight changes should be stored in "W_update", "W_bias_update", "GAMMA_update", "GAMMA_bias_update" variable.
                 """
 
 
-                
+
                 dCE_dV = output_layer_output - label
                 GAMMA_update = np.dot(np.transpose(hidden_layer_output), dCE_dV)
-                GAMMA_bias_update = dCE_dV  
+                GAMMA_bias_update = dCE_dV
 
                 dV_dH = np.transpose(self.GAMMA)
                 dH_dZ = hidden_layer_output * (1 - hidden_layer_output)
-                
+
                 dCE_dZ = np.dot(dCE_dV, dV_dH) * dH_dZ
                 W_update = np.transpose(x) * dCE_dZ
                 W_bias_update = dCE_dZ
-             
+
 
                 # After finding update values we are performing the weight updates
                 self.W = self.W - self.learning_rate*W_update
