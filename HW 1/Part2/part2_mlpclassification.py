@@ -12,7 +12,7 @@ def forward_pass(w1, b1, w2, b2, input_data):
     Here you are expected to perform all the required operations for a forward pass over the network with the given dataset
     """
 
-
+    """
     data_instances = input_data.shape[0]
 
     hidden_layer_output = torch.zeros(data_instances, hidden_layer)
@@ -32,6 +32,14 @@ def forward_pass(w1, b1, w2, b2, input_data):
         output_layer_output[i][2] = b2[0][2] + torch.dot(hidden_layer_output[i], w2T[2])
 
     output_layer_output = torch.softmax(output_layer_output, dim=1)
+    """
+
+    hidden_layer_input = input_data @ w1 + b1
+    hidden_layer_output = torch.tanh(hidden_layer_input)
+
+    output_layer_input = hidden_layer_output @ w2 + b2
+    output_layer_output = torch.softmax(output_layer_input, dim=1)
+
     return output_layer_output
 
 # we load all training, validation, and test datasets for the classification task
@@ -99,7 +107,7 @@ validation_loss_array = []
 
 # We are going to perform the backpropagation algorithm 'ITERATION' times over the training dataset
 # After each pass, we are calculating the average/mean cross entropy loss over the validation dataset along with accuracy scores on both datasets.
-ITERATION = 1#15000
+ITERATION = 15000
 for iteration in range(1, ITERATION+1):
     iteration_array.append(iteration)
 
@@ -110,14 +118,12 @@ for iteration in range(1, ITERATION+1):
 
 
     # Here you are expected to calculate the MEAN cross-entropy loss with respect to the network predictions and the training label
-    print(train_predictions.size(), train_predictions)
-    print(train_label.size(), train_label)
 
+    train_crossentropy_log = train_label * torch.log(train_predictions)
+    train_crossentropy_log_sum = -torch.sum(train_crossentropy_log, dim=1, keepdim=True)
+    train_mean_crossentropy_loss = torch.mean(train_crossentropy_log_sum)
 
-    """
-
-    train_mean_crossentropy_loss = ...
-
+    
     train_loss_array.append(train_mean_crossentropy_loss.item())
     # We initiate the gradient calculation procedure to get gradient values with respect to the calculated loss
     train_mean_crossentropy_loss.backward()
@@ -130,34 +136,40 @@ for iteration in range(1, ITERATION+1):
         train_predictions = forward_pass(w1, b1, w2, b2, train_dataset)
 
         # Here you are expected to calculate the accuracy score on the training dataset by using the training labels.
-        train_accuracy = ...
+        
+        train_passed = torch.sum(torch.argmax(train_label, dim=1) == torch.argmax(train_predictions, dim=1)).item()
+        train_accuracy = (train_passed / train_predictions.shape[0]) * 100 
 
         validation_predictions = forward_pass(w1, b1, w2, b2, validation_dataset)
 
         # Here you are expected to calculate the average/mean cross entropy loss for the validation dataset by using the validation dataset labels.
-        validation_mean_crossentropy_loss = ...
+        validation_crossentropy_log = validation_label * torch.log(validation_predictions)
+        validation_crossentropy_log_sum = -torch.sum(validation_crossentropy_log, dim=1, keepdim=True)
+        validation_mean_crossentropy_loss = torch.mean(validation_crossentropy_log_sum)
 
         validation_loss_array.append(validation_mean_crossentropy_loss.item())
 
         # Similarly, here, you are expected to calculate the accuracy score on the validation dataset
-        validation_accuracy = ...
+        validation_passed = torch.sum(torch.argmax(validation_label, dim=1) == torch.argmax(validation_predictions, dim=1)).item()
+        validation_accuracy = (validation_passed / validation_predictions.shape[0]) * 100 
 
     print("Iteration : %d - Train Loss %.4f - Train Accuracy : %.2f - Validation Loss : %.4f Validation Accuracy : %.2f" % (iteration, train_mean_crossentropy_loss.item(), train_accuracy, validation_mean_crossentropy_loss.item(), validation_accuracy))
-    """
+   
 
 
 # after completing the training, we calculate our network's accuracy score on the test dataset...
 # Again, here we don't need to perform any gradient-related operations, so we are using torch.no_grad() function.
-"""
+
 with torch.no_grad():
     test_predictions = forward_pass(w1, b1, w2, b2, test_dataset)
     # Here you are expected to calculate the network accuracy score on the test dataset...
-    test_accuracy = ...
-    print("Test accuracy : %.2f" % (test_accuracy.item()))
+    test_passed = torch.sum(torch.argmax(test_label, dim=1) == torch.argmax(test_predictions, dim=1)).item()
+    test_accuracy = (train_passed / train_predictions.shape[0]) * 100
+    print("Test accuracy : %.2f" % (float(test_accuracy)))
 
 # We plot the loss versus iteration graph for both datasets (training and validation)
 plt.plot(iteration_array, train_loss_array, label="Train Loss")
 plt.plot(iteration_array, validation_loss_array, label="Validation Loss")
 plt.legend()
 plt.show()
-"""
+
