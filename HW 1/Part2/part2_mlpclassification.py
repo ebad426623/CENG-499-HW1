@@ -22,7 +22,7 @@ def forward_pass(w1, b1, w2, b2, input_data):
     w2T = w2.T
 
     for i in range(data_instances):
-        for j in range(64):
+        for j in range(hidden_layer):
             hidden_layer_output[i][j] = torch.tanh(b1[0][j] + torch.dot(input_data[i], w1T[j]))
 
 
@@ -32,7 +32,6 @@ def forward_pass(w1, b1, w2, b2, input_data):
         output_layer_output[i][2] = b2[0][2] + torch.dot(hidden_layer_output[i], w2T[2])
 
     output_layer_output = torch.softmax(output_layer_output, dim=1)
-
     return output_layer_output
 
 # we load all training, validation, and test datasets for the classification task
