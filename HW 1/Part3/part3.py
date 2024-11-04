@@ -33,6 +33,7 @@ y_test = torch.from_numpy(y_test).to(torch.long)
 # Global
 input_layer_units = 784
 output_layer_units = 10
+num_trials_per_config = 10
 
 
 class MLPClassifier(nn.Module):
@@ -52,7 +53,6 @@ class MLPClassifier(nn.Module):
         
         self.layers.append(nn.Linear(hidden_layer_unit, output_layer_units))       
         self.model = nn.Sequential(*self.layers)  
-        # use this for error self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         return self.model(x)
@@ -69,33 +69,74 @@ class MLPClassifier(nn.Module):
             loss.backward()
             optimizer.step()
 
+
+    def validation_test_acurracy(self, x, y):
+        with torch.no_grad():
+            x_prediction = self.forward(x)
+            x_prediction = torch.nn.functional.softmax(x_prediction, dim=1)
+            predicted_classes = torch.argmax(x_prediction, dim=1)
+            passed = torch.sum(y == predicted_classes).item()
+            return passed / x_prediction.shape[0]
+
     
 
 
 
 def gridSearch():
-    hidden_layer = [1, 2] #[1, 2, 3]
-    hidden_layer_units = [10, 64]#[10, 100, 1000]
+    hidden_layer = [1, 2, 3]
+    hidden_layer_units = [10, 100, 1000]
     epochs = [3, 4, 5]
-    learning_rates = [0.0001, 0.001]#[0.0001, 0.001, 0.01, 0.1]
-    activation_functions = [nn.Sigmoid]
+    learning_rates = [0.0001, 0.001, 0.01, 0.1]
+    activation_functions = [nn.Sigmoid, nn.Tanh, nn.ReLU]
 
     combinations = list(itertools.product(hidden_layer, hidden_layer_units, epochs, learning_rates, activation_functions))
     best_combo = combinations[0]
+    best_accuracy = 0
     count = 1
 
     for hl, hlu, e, lr, af in combinations:
             print("Combination ", count)
             print(f"Hidden Layers = {hl}, Hidden Layer Units = {hlu}, Epochs = {e}, Learning rate = {lr}, Activation Function = {af.__name__}")
-            print()
             count += 1
+            accuracy = []
+
  
-            for _ in range (10):
+            for _ in range (num_trials_per_config):
                 mlp = MLPClassifier(learning_rate = lr, epoch_number = e, hidden_layer = hl, hidden_layer_unit = hlu, activation_function=af)
                 mlp.train(x_train, y_train)
+                accuracy.append(mlp.validation_test_acurracy(x_validation, y_validation))
             
+            accuracy_mean = sum(accuracy) / num_trials_per_config
+            accuracy_range = accuracy_mean / np.sqrt(num_trials_per_config)
+            confidence_interval =  [accuracy_mean - accuracy_range, accuracy_mean + accuracy_range]
+
+            print(f"Mean Accuracy: {accuracy_mean:.4f}, Confidence Interval: ({confidence_interval[0]:.4f}, {confidence_interval[1]:.4f})")
+
+            if(accuracy_mean > best_accuracy):
+                best_accuracy = accuracy_mean
+                best_combo = [hl, hlu, e, lr, af]
+            
+
+            print()
     return best_combo
 
 best_combo = gridSearch()
-print(best_combo)
 
+print("Best Combination ")
+print(f"Hidden Layers = {best_combo[0]}, Hidden Layer Units = {best_combo[1]}, Epochs = {best_combo[2]}, Learning rate = {best_combo[3]}, Activation Function = {best_combo[4].__name__}")
+
+# Concatenaing Validation and Test data set 
+x_test = torch.cat((x_validation, x_test), dim=0)
+y_test = torch.cat((y_validation, y_test), dim=0)
+
+accuracy = []
+for _ in range (num_trials_per_config):
+    mlp = MLPClassifier(learning_rate = best_combo[3], epoch_number = best_combo[2], hidden_layer = best_combo[0], hidden_layer_unit = best_combo[1], activation_function=best_combo[4])
+    mlp.train(x_train, y_train)
+    accuracy.append(mlp.validation_test_acurracy(x_test, y_test))
+
+accuracy_mean = sum(accuracy) / num_trials_per_config
+accuracy_range = accuracy_mean / np.sqrt(num_trials_per_config)
+confidence_interval =  [accuracy_mean - accuracy_range, accuracy_mean + accuracy_range]
+
+print(f"Mean Accuracy: {accuracy_mean:.4f}, Confidence Interval: ({confidence_interval[0]:.4f}, {confidence_interval[1]:.4f})")
