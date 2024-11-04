@@ -85,7 +85,7 @@ class MLPClassifier(nn.Module):
 def gridSearch():
     hidden_layer = [1, 2, 3]
     hidden_layer_units = [10, 100, 1000]
-    epochs = [3, 4, 5]
+    epochs = [100, 1000, 10000]
     learning_rates = [0.0001, 0.001, 0.01, 0.1]
     activation_functions = [nn.Sigmoid, nn.Tanh, nn.ReLU]
 
