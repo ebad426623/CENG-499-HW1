@@ -45,29 +45,31 @@ class MLPClassifier(nn.Module):
         self.lr = learning_rate
         self.activation = activation_function
         
-        self.layers = nn.ModuleList()
-        self.layers.append(nn.Linear(input_layer_units, hidden_layer_unit))  # Input to first hidden layer
+        layers = []
+        layers.append(nn.Linear(input_layer_units, hidden_layer_unit))  # Input to first hidden layer
         
         for _ in range(1, hidden_layer):
-            self.layers.append(nn.Linear(hidden_layer_unit, hidden_layer_unit))  # Hidden layers
+            layers.append(nn.Linear(hidden_layer_unit, hidden_layer_unit))  # Hidden layers
         
-        self.layers.append(nn.Linear(hidden_layer_unit, output_layer_units))       
-        self.model = nn.Sequential(*self.layers)  
+        layers.append(nn.Linear(hidden_layer_unit, output_layer_units))       
+        self.model = nn.Sequential(*layers)  
 
     def forward(self, x):
         return self.model(x)
     
 
-    def train(self, x_train, y_train):
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.lr)
+    def train(self, x_train, y_train, t: int):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         ce = nn.CrossEntropyLoss()
 
-        for _ in range(self.epoch):
+        for i in range(self.epoch):
             optimizer.zero_grad()
             train_predictions = self.forward(x_train)
             loss = ce(train_predictions, y_train)
             loss.backward()
             optimizer.step()
+            #if (i + 1) % 10 == 0:  # Print loss every 10 epochs
+            #    print(f"Trail: {t}, Epoch [{i + 1}/{self.epoch}], Loss: {loss.item():.4f}")
 
 
     def validation_test_acurracy(self, x, y):
@@ -76,6 +78,8 @@ class MLPClassifier(nn.Module):
             x_prediction = torch.nn.functional.softmax(x_prediction, dim=1)
             predicted_classes = torch.argmax(x_prediction, dim=1)
             passed = torch.sum(y == predicted_classes).item()
+            #print("Accuracy: ",passed / x_prediction.shape[0] * 100)
+            #print()
             return passed / x_prediction.shape[0]
 
     
@@ -83,11 +87,11 @@ class MLPClassifier(nn.Module):
 
 
 def gridSearch():
-    hidden_layer = [1, 2, 3]
-    hidden_layer_units = [10, 100, 1000]
-    epochs = [100, 1000, 10000]
-    learning_rates = [0.0001, 0.001, 0.01, 0.1]
-    activation_functions = [nn.Sigmoid, nn.Tanh, nn.ReLU]
+    hidden_layer = [1, 2]
+    hidden_layer_units = [32, 64, 128]
+    epochs = [50, 100]
+    learning_rates = [0.001, 0.01, 0.1]
+    activation_functions = [nn.Sigmoid, nn.ReLU, nn.Tanh]
 
     combinations = list(itertools.product(hidden_layer, hidden_layer_units, epochs, learning_rates, activation_functions))
     best_combo = combinations[0]
@@ -100,17 +104,17 @@ def gridSearch():
             count += 1
             accuracy = []
 
- 
-            for _ in range (num_trials_per_config):
+            for i in range (num_trials_per_config):
+                
                 mlp = MLPClassifier(learning_rate = lr, epoch_number = e, hidden_layer = hl, hidden_layer_unit = hlu, activation_function=af)
-                mlp.train(x_train, y_train)
+                mlp.train(x_train, y_train, i+1)
                 accuracy.append(mlp.validation_test_acurracy(x_validation, y_validation))
             
-            accuracy_mean = sum(accuracy) / num_trials_per_config
-            accuracy_range = accuracy_mean / np.sqrt(num_trials_per_config)
+            accuracy_mean = np.mean(accuracy)
+            accuracy_range = 1.96 * (np.std(accuracy) / np.sqrt(num_trials_per_config))
             confidence_interval =  [accuracy_mean - accuracy_range, accuracy_mean + accuracy_range]
 
-            print(f"Mean Accuracy: {accuracy_mean:.4f}, Confidence Interval: ({confidence_interval[0]:.4f}, {confidence_interval[1]:.4f})")
+            print(f"Mean Accuracy: {accuracy_mean:.4f}, Interval: {accuracy_range:.4f}, Confidence Interval: ({confidence_interval[0]:.4f}, {confidence_interval[1]:.4f})")
 
             if(accuracy_mean > best_accuracy):
                 best_accuracy = accuracy_mean
@@ -125,18 +129,21 @@ best_combo = gridSearch()
 print("Best Combination ")
 print(f"Hidden Layers = {best_combo[0]}, Hidden Layer Units = {best_combo[1]}, Epochs = {best_combo[2]}, Learning rate = {best_combo[3]}, Activation Function = {best_combo[4].__name__}")
 
-# Concatenaing Validation and Test data set 
-x_test = torch.cat((x_validation, x_test), dim=0)
-y_test = torch.cat((y_validation, y_test), dim=0)
+# Concatenaing Training and Validation data set 
+x_train = torch.cat((x_train, x_validation), dim=0)
+y_train = torch.cat((y_train, y_validation), dim=0)
 
 accuracy = []
-for _ in range (num_trials_per_config):
+
+for i in range (num_trials_per_config):
+    
     mlp = MLPClassifier(learning_rate = best_combo[3], epoch_number = best_combo[2], hidden_layer = best_combo[0], hidden_layer_unit = best_combo[1], activation_function=best_combo[4])
-    mlp.train(x_train, y_train)
+    mlp.train(x_train, y_train, i+1)
     accuracy.append(mlp.validation_test_acurracy(x_test, y_test))
 
-accuracy_mean = sum(accuracy) / num_trials_per_config
-accuracy_range = accuracy_mean / np.sqrt(num_trials_per_config)
+accuracy_mean = np.mean(accuracy)
+accuracy_range = 1.96 * (np.std(accuracy) / np.sqrt(num_trials_per_config))
 confidence_interval =  [accuracy_mean - accuracy_range, accuracy_mean + accuracy_range]
 
-print(f"Mean Accuracy: {accuracy_mean:.4f}, Confidence Interval: ({confidence_interval[0]:.4f}, {confidence_interval[1]:.4f})")
+print(f"Mean Accuracy: {accuracy_mean:.4f}, Interval: {accuracy_range:.4f}, Confidence Interval: ({confidence_interval[0]:.4f}, {confidence_interval[1]:.4f})")
+
